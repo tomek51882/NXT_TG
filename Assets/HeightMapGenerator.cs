@@ -49,7 +49,7 @@ public static class HeightMapGenerator
                     frequency *= lacunarity;
 
                 }
-                heightMap[x, y] = Mathf.InverseLerp(0, 1, noiseHeight);
+                heightMap[x, y] = Mathf.InverseLerp(0, highestPossibleNoiseVal, noiseHeight);
             }
         }
         return heightMap;
