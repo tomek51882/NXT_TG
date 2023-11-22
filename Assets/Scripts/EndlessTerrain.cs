@@ -191,7 +191,7 @@ public class EndlessTerrain : MonoBehaviour
             this.lod = lod;
             this.updateCallback = updateCallback;
         }
-        void OnMeshDataReceived(MeshData meshData)
+        void OnMeshDataReceived(ChunkMeshData meshData)
         {
             mesh = meshData.CreateMesh();
             hasMesh = true;
@@ -203,10 +203,5 @@ public class EndlessTerrain : MonoBehaviour
             mapGen.RequestMeshData(mapData, lod, OnMeshDataReceived);
         }
     }
-    [Serializable]
-    public struct LODInfo
-    {
-        public int lod;
-        public float visibleDistanceThreshold;
-    }
+    
 }

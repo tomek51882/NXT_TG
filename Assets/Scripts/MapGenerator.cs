@@ -34,7 +34,7 @@ public class MapGenerator : MonoBehaviour
     public TerrainType[] regions;
 
     Queue<MapThreadInfo<MapData>> mapDataThreadInfoQueue = new Queue<MapThreadInfo<MapData>>();
-    Queue<MapThreadInfo<MeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<MeshData>>();
+    Queue<MapThreadInfo<ChunkMeshData>> meshDataThreadInfoQueue = new Queue<MapThreadInfo<ChunkMeshData>>();
     public void DrawMapInEditor()
     {
         MapData mapData = GenerateMapData(Vector2.zero);
@@ -56,10 +56,10 @@ public class MapGenerator : MonoBehaviour
 
     public void RequestMapData(Vector2 chunkCenter, Action<MapData> callback)
     {
-        ThreadStart threadStart = delegate
+        void threadStart()
         {
             MapDataThread(chunkCenter, callback);
-        };
+        }
         new Thread(threadStart).Start();
     }
     void MapDataThread(Vector2 chunkCenter, Action<MapData> callback)
@@ -70,7 +70,7 @@ public class MapGenerator : MonoBehaviour
             mapDataThreadInfoQueue.Enqueue(new MapThreadInfo<MapData>(callback, mapData));
         }
     }
-    public void RequestMeshData(MapData mapData, int lod, Action<MeshData> callback)
+    public void RequestMeshData(MapData mapData, int lod, Action<ChunkMeshData> callback)
     {
         ThreadStart threadStart = delegate
         {
@@ -78,12 +78,12 @@ public class MapGenerator : MonoBehaviour
         };
         new Thread(threadStart).Start();
     }
-    void MeshDataThread(MapData mapData, int lod, Action<MeshData> callback)
+    void MeshDataThread(MapData mapData, int lod, Action<ChunkMeshData> callback)
     {
-        MeshData meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, lod);
+        ChunkMeshData meshData = MeshGenerator.GenerateTerrainMesh(mapData.heightMap, meshHeightMultiplier, meshHeightCurve, lod);
         lock (meshDataThreadInfoQueue)
         {
-            meshDataThreadInfoQueue.Enqueue(new MapThreadInfo<MeshData>(callback, meshData));
+            meshDataThreadInfoQueue.Enqueue(new MapThreadInfo<ChunkMeshData>(callback, meshData));
         }
     }
 
@@ -101,7 +101,7 @@ public class MapGenerator : MonoBehaviour
         {
             for (int i = 0; i < meshDataThreadInfoQueue.Count; i++)
             {
-                MapThreadInfo<MeshData> threadInfo = meshDataThreadInfoQueue.Dequeue();
+                MapThreadInfo<ChunkMeshData> threadInfo = meshDataThreadInfoQueue.Dequeue();
                 threadInfo.callback(threadInfo.parameter);
             }
         }
